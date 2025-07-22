@@ -4,14 +4,11 @@ using UnityEngine;
 public class PickUp : MonoBehaviour
 {
     [SerializeField] private Rigidbody rb;
+    private PickedUp pickedUpScript;
     void Start()
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
+        pickedUpScript = gameObject.AddComponent<PickedUp>();
+        pickedUpScript.enabled = false;
     }
 
     public void ToggleOutlineMaterial(Material material = null)
@@ -35,20 +32,17 @@ public class PickUp : MonoBehaviour
     public void OnPickedUp(Transform playerPickUpPoint)
     {
         rb.useGravity = false;
-        Debug.Log("Picked up");
-        // transform.position = playerPickUpPoint.position;
-        transform.parent = playerPickUpPoint;
-        // rb.constraints = RigidbodyConstraints.FreezePosition;
+        pickedUpScript.enabled = true;
+        pickedUpScript.SetUp(playerPickUpPoint);
     }
 
-    public void OnPutDown(Vector3 lastPos)
+    public void OnPutDown()
     {
-        Vector3 velocityVector = transform.position - lastPos;
+        Vector3 velocityVector = pickedUpScript.GetLastVelocity();
         float Speed = 10;
         velocityVector = new Vector3(velocityVector.x, velocityVector.y * Speed, velocityVector.z);
-        // rb.constraints = RigidbodyConstraints.None;
         rb.useGravity = true;
-        transform.parent = null;
+        pickedUpScript.enabled = false;
         rb.linearVelocity = velocityVector;
     }
 
