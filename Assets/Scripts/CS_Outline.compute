@@ -1,0 +1,52 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel Init
+#pragma kernel JumpFlood
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+RWTexture2D<float4> _Output;
+Texture2D _Input;
+int _JumpSize;
+
+
+[numthreads(8, 8, 1)]
+void Init(uint3 id : SV_DispatchThreadID)
+{
+    float4 color = _Input[id.xy];
+    _Output[id.xy] = (color.r > 0.5) ? float4(id.xy / 1024.0, 0, 0) : float4(-1, -1, 0, 0);
+}
+
+
+[numthreads(8, 8, 1)]
+void JumpFlood(uint3 id : SV_DispatchThreadID)
+{
+    int2 size;
+    _Input.GetDimensions(size.x, size.y);
+
+    float2 bestCoord = float2(-1, -1);
+    float minDist = 1e20;
+
+    for (int dy = -1; dy <= 1; dy++)
+    {
+        for (int dx = -1; dx <= 1; dx++)
+        {
+            int2 offset = int2(dx, dy) * _JumpSize;
+            int2 sampleCoord = int2(id.xy) + offset;
+
+            if (sampleCoord.x < 0 || sampleCoord.y < 0 || sampleCoord.x >= size.x || sampleCoord.y >= size.y)
+                continue;
+
+            float4 seed = _Input[sampleCoord];
+            if (seed.xy.x < 0) continue;
+
+            float dist = distance(seed.xy, id.xy / (float2)size);
+            if (dist < minDist)
+            {
+                minDist = dist;
+                bestCoord = seed.xy;
+            }
+        }
+    }
+
+    _Output[id.xy] = float4(bestCoord, 0, 0);
+}
