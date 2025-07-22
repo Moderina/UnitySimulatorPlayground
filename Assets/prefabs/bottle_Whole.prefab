@@ -177,7 +177,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   replacePrefab: {fileID: 5708486189315761420, guid: 4eb39de686278834fa5d41b8c6fa6ec6, type: 3}
   meshCollider: {fileID: 6976444816589264105}
-  maxVelocityDurability: 10
+  maxVelocityDurability: 8
 --- !u!114 &7920081516767155069
 MonoBehaviour:
   m_ObjectHideFlags: 0
